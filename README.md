@@ -1,4 +1,4 @@
-# TBP Lesion Detection — Multi-Architecture Benchmark
+# TBP Lesion Detection: Multi-Architecture Benchmark
 
 Code for the paper **"Automated Skin Lesion Detection in Total Body Photography: A Multi-Architecture Benchmark"**, accepted as a spotlight paper at ISIC Workshop, MICCAI 2026.
 
