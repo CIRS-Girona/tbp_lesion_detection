@@ -1,0 +1,100 @@
+# ============================================================
+# sweep_config_v8_noaug.yaml
+# WandB Sweep -- YOLOv8s | No Augmentation | F1 Objective
+# Project: iToBoS Skin Lesion Detection
+# Location: yamin/experiment-v8/
+#
+# Mirrors v11/v12 noaug experiment -- only horizontal flip enabled.
+# Augmentation params NOT tunable (fixed to off).
+# Runs from ~/code/iToBoS/ so program path starts with yamin/
+# ============================================================
+
+program: yamin/experiment-v8/hparam_sweep.py
+method: bayes
+
+# Fixed args passed to the script on every trial (NOT hyperparameters)
+command:
+  - ${env}
+  - python
+  - ${program}
+  - --model
+  - yolov8s.pt
+  - --aug_mode
+  - noaug
+  - --device
+  - "1"
+
+metric:
+  name: final/F1
+  goal: maximize
+
+early_terminate:
+  type: hyperband
+  min_iter: 10
+  eta: 3
+
+parameters:
+
+  # Learning Rate -- wider lower bound for noaug (models need lower lr)
+  lr0:
+    distribution: log_uniform_values
+    min: 0.000001
+    max: 0.01
+
+  lrf:
+    distribution: uniform
+    min: 0.001
+    max: 0.15
+
+  # Regularisation
+  weight_decay:
+    distribution: log_uniform_values
+    min: 0.000001
+    max: 0.01
+
+  dropout:
+    distribution: uniform
+    min: 0.0
+    max: 0.5
+
+  # Optimiser
+  momentum:
+    distribution: uniform
+    min: 0.80
+    max: 0.98
+
+  # Warmup
+  warmup_epochs:
+    values: [2, 3, 5]
+
+  warmup_momentum:
+    distribution: uniform
+    min: 0.5
+    max: 0.9
+
+  # Loss Weights
+  box:
+    distribution: uniform
+    min: 4.0
+    max: 12.0
+
+  cls:
+    distribution: uniform
+    min: 0.3
+    max: 2.5
+
+  dfl:
+    distribution: uniform
+    min: 1.0
+    max: 3.0
+
+  iou:
+    distribution: uniform
+    min: 0.4
+    max: 0.8
+
+  # Only fliplr is tunable in noaug mode
+  fliplr:
+    distribution: uniform
+    min: 0.0
+    max: 0.7

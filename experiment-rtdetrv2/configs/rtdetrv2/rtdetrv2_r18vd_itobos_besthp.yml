@@ -1,0 +1,15 @@
+__include__: ['/home/falcon/hope2/code/iToBoS/praveen/rtdetrv2/rtdetrv2_pytorch/configs/rtdetrv2/rtdetrv2_r18vd_itobos.yml']
+epoches: 72
+checkpoint_freq: 100000          # only last.pth + best.pth (save disk)
+output_dir: /home/falcon/hope2/code/iToBoS/praveen/rtdetrv2_output/rtdetrv2_r18vd_itobos_besthp_1024
+optimizer:
+  type: AdamW
+  params:
+    - params: '^(?=.*(?:norm|bn)).*$'
+      weight_decay: 0.0
+  lr: 0.00012431050395010507
+  betas: [0.9, 0.999]
+  weight_decay: 0.00017252745505494241
+lr_warmup_scheduler:
+  type: LinearWarmup
+  warmup_duration: 250

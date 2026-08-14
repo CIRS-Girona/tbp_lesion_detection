@@ -1,0 +1,79 @@
+# ============================================================
+# sweep_config_rtdetr_noaug.yaml
+# WandB Sweep -- RT-DETR-L | No Augmentation | F1 Objective
+# Project: iToBoS Skin Lesion Detection
+# Location: praveen/experiment-rtdetr/
+#
+# No-aug mode: only horizontal flip is allowed. All other
+# augmentation is forced off inside hparam_sweep.py. So this
+# config tunes only the optimisation / regularisation params
+# plus fliplr.
+# ============================================================
+
+program: praveen/experiment-rtdetr/hparam_sweep.py
+method: bayes
+
+command:
+  - ${env}
+  - python
+  - ${program}
+  - --model
+  - rtdetr-l.pt
+  - --aug_mode
+  - noaug
+  - --device
+  - "0"
+
+metric:
+  name: final/F1
+  goal: maximize
+
+early_terminate:
+  type: hyperband
+  min_iter: 10
+  eta: 3
+
+parameters:
+
+  # ── Learning Rate ──────────────────────────────────────────
+  lr0:
+    distribution: log_uniform_values
+    min: 0.00001
+    max: 0.001
+
+  lrf:
+    distribution: uniform
+    min: 0.01
+    max: 0.2
+
+  # ── Regularisation ─────────────────────────────────────────
+  weight_decay:
+    distribution: log_uniform_values
+    min: 0.000001
+    max: 0.001
+
+  dropout:
+    distribution: uniform
+    min: 0.0
+    max: 0.3
+
+  # ── Optimiser ──────────────────────────────────────────────
+  momentum:
+    distribution: uniform
+    min: 0.85
+    max: 0.98
+
+  # ── Warmup ─────────────────────────────────────────────────
+  warmup_epochs:
+    values: [1, 2, 3]
+
+  warmup_momentum:
+    distribution: uniform
+    min: 0.5
+    max: 0.9
+
+  # ── Augmentation: only horizontal flip tunable ─────────────
+  fliplr:
+    distribution: uniform
+    min: 0.0
+    max: 0.7

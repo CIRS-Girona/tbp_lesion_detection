@@ -1,0 +1,5 @@
+__include__: ['./rtdetrv2_r18vd_itobos_scale.yml']
+val_dataloader:
+  dataset:
+    img_folder: /scratch2/lesion_detection/split_dataset_blurred/test/images
+    ann_file:   /scratch2/lesion_detection/split_dataset_blurred/annotations/test.json

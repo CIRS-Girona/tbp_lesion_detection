@@ -216,3 +216,34 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Research-specific ignores
+# Model weights (large binary files)
+*.pt
+*.pth
+*.onnx
+*.engine
+*.trt
+
+# Training outputs / runs
+runs/
+wandb/
+
+# Log files
+*.log
+*.log.*
+
+# Dataset files (data is not included in the repo)
+*.json
+!**/configs/**/*.json
+*.csv
+
+# Environment files with credentials
+.env
+.env.local
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Experiment result caches
+__result_cache__/

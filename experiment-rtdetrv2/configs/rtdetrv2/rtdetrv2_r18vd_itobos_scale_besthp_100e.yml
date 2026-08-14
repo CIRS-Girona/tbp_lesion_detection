@@ -1,0 +1,15 @@
+__include__: ['./rtdetrv2_r18vd_itobos_scale.yml']
+epoches: 100
+checkpoint_freq: 100000
+output_dir: /home/falcon/hope2/code/iToBoS/praveen/rtdetrv2_output/rtdetrv2_r18vd_itobos_scale_besthp_100e_1024
+optimizer:
+  type: AdamW
+  params:
+    - params: '^(?=.*(?:norm|bn)).*$'
+      weight_decay: 0.0
+  lr: 0.0001243
+  betas: [0.9, 0.999]
+  weight_decay: 0.0001725
+lr_warmup_scheduler:
+  type: LinearWarmup
+  warmup_duration: 250

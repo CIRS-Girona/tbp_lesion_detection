@@ -1,0 +1,34 @@
+# WandB Bayesian Sweep Config — D-FINE-S on iToBoS
+# Create sweep with:  wandb sweep sweep_config.yaml
+# Then run agent:     wandb agent <entity>/<project>/<sweep_id>
+
+program: scripts/sweep_agent.py
+method: bayes
+name: dfine-s-itobos-hp-sweep
+
+metric:
+  name: val_mAP50
+  goal: maximize
+
+# Number of trials to run
+run_cap: 20
+
+parameters:
+  lr:
+    distribution: log_uniform_values
+    min: 1.0e-5
+    max: 1.5e-4
+
+  backbone_lr_ratio:
+    # backbone_lr = lr * backbone_lr_ratio
+    # Aritra used backbone_lr = lr/2 (ratio=0.5)
+    values: [0.25, 0.5, 1.0]
+
+  weight_decay:
+    distribution: log_uniform_values
+    min: 1.0e-5
+    max: 5.0e-3
+
+# ── Fixed (not swept) ────────────────────────────────────────────────────
+# aug_mode=full, epochs=30, batch=8, img_size=1024, model_size=s
+# Loss weights use D-FINE-S defaults (ablation is a separate set of runs)

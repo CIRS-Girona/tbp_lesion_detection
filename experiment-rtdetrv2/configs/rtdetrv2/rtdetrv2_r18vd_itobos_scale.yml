@@ -1,0 +1,37 @@
+# rtdetrv2_r18vd_itobos_scale.yml
+# ---------------------------------------------------------------------------
+# RT-DETRv2-S + LesionSCALE (pre-decoder feature reconstruction) on iToBoS.
+# Inherits the baseline iToBoS config (data paths, single class, 1024px,
+# schedule, disk-safe checkpointing) and ONLY:
+#   - swaps the model to RTDETRSCALE  (backbone -> encoder -> SCALE -> decoder)
+#   - sets a separate output dir (so it doesn't clobber the baseline run)
+#
+# Train from the SAME COCO-pretrained weights as the baseline:
+#   python tools/train.py -c configs/rtdetrv2/rtdetrv2_r18vd_itobos_scale.yml \
+#                         -t rtdetrv2_r18vd_120e_coco_rerun_48.1.pth \
+#                         --use-amp --seed 0
+#
+# Author: Praveen Kumar Murali | June 2026
+# ---------------------------------------------------------------------------
+
+__include__: ['./rtdetrv2_r18vd_itobos.yml']
+
+
+model: RTDETRSCALE
+
+
+# Same backbone/encoder/decoder as the baseline (built from their own config
+# blocks); the scale_* flags configure the inserted SCALE module.
+RTDETRSCALE:
+  backbone: PResNet
+  encoder: HybridEncoder
+  decoder: RTDETRTransformerv2
+  scale_channels: 256       # = HybridEncoder hidden_dim
+  scale_num_scales: 3
+  use_dsa: True             # Dynamic Scale Aggregation (cross-scale attention)
+  use_far: True             # deepest-scale reconstruction
+  use_sare: True            # Scale-Aware Residual Enhancement (strip pooling)
+  deep_type: cf             # 'cf' = paper-faithful Context Fusion; 'fft' = FFT variant
+
+
+output_dir: /home/falcon/hope2/code/iToBoS/praveen/rtdetrv2_output/rtdetrv2_r18vd_itobos_scale_1024

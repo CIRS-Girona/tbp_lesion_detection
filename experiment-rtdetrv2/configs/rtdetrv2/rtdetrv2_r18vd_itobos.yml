@@ -1,0 +1,72 @@
+# rtdetrv2_r18vd_itobos.yml
+# ---------------------------------------------------------------------------
+# RT-DETRv2-S (ResNet-18) fine-tuned on the iToBoS skin-lesion dataset.
+# Includes the official S config and overrides ONLY what we need:
+#   - single class (lesion)
+#   - 1024px input  (to match the YOLO / RT-DETR-L benchmark; repo default 640)
+#   - our COCO data paths
+#   - output dir + low checkpoint frequency (disk is ~93% full)
+#
+# Train from COCO-pretrained weights:
+#   python tools/train.py -c configs/rtdetrv2/rtdetrv2_r18vd_itobos.yml \
+#                         -t rtdetrv2_r18vd_120e_coco_rerun_48.1.pth
+#
+# Author: Praveen Kumar Murali | June 2026
+# ---------------------------------------------------------------------------
+
+__include__: ['./rtdetrv2_r18vd_120e_coco.yml']
+
+
+# --- single class -----------------------------------------------------------
+# Our COCO json uses category_id = 1, so num_classes must be 2
+# (valid label indices 0 and 1; index 0 is never used). This is the standard
+# RT-DETR single-class trick and avoids a label-out-of-range CUDA crash.
+num_classes: 2
+remap_mscoco_category: False
+
+
+# --- 1024px (fair comparison vs YOLO-s / RT-DETR-L, all at 1024) ------------
+eval_spatial_size: [1024, 1024]
+
+
+# --- output + schedule ------------------------------------------------------
+output_dir: /home/falcon/hope2/code/iToBoS/praveen/rtdetrv2_output/rtdetrv2_r18vd_itobos_1024
+epoches: 72
+checkpoint_freq: 100      # > epoches => keep only last.pth + best (save disk)
+
+
+# --- train data -------------------------------------------------------------
+train_dataloader:
+  dataset:
+    img_folder: /scratch2/lesion_detection/split_dataset_blurred/train/images
+    ann_file:   /scratch2/lesion_detection/split_dataset_blurred/annotations/train.json
+    transforms:
+      type: Compose
+      ops:
+        - {type: RandomPhotometricDistort, p: 0.5}
+        - {type: RandomZoomOut, fill: 0}
+        - {type: RandomIoUCrop, p: 0.8}
+        - {type: SanitizeBoundingBoxes, min_size: 1}
+        - {type: RandomHorizontalFlip}
+        - {type: Resize, size: [1024, 1024]}
+        - {type: SanitizeBoundingBoxes, min_size: 1}
+        - {type: ConvertPILImage, dtype: 'float32', scale: True}
+        - {type: ConvertBoxes, fmt: 'cxcywh', normalize: True}
+      policy:
+        name: stop_epoch
+        epoch: 66          # stop heavy aug for the last ~6 epochs
+        ops: ['RandomPhotometricDistort', 'RandomZoomOut', 'RandomIoUCrop']
+  total_batch_size: 16     # single A100; drop to 8 if OOM
+
+
+# --- val data ---------------------------------------------------------------
+val_dataloader:
+  dataset:
+    img_folder: /scratch2/lesion_detection/split_dataset_blurred/val/images
+    ann_file:   /scratch2/lesion_detection/split_dataset_blurred/annotations/val.json
+    transforms:
+      type: Compose
+      ops:
+        - {type: Resize, size: [1024, 1024]}
+        - {type: ConvertPILImage, dtype: 'float32', scale: True}
+  total_batch_size: 16
